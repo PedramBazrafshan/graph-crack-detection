@@ -50,7 +50,7 @@ img_gray = np.float32(img_gray)
 
 ### Harris corner detection
 har_cor = cv2.cornerHarris(img_gray, 2, 3, 0.04)
-har_cor = cv2.dilate(har_cor, None, iterations = 3)
+#har_cor = cv2.dilate(har_cor, None, iterations = 3)
 
 ### Testing the size of the dataset
 print(har_cor.shape)
