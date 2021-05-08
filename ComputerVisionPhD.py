@@ -28,6 +28,7 @@ print(img_gray.shape)
 plt.imshow(img_gray, cmap = 'gray')
 #plt.show()
 #plt.savefig('img_gray', dpi=600)
+np.savetxt("img_gray.csv", img_gray, delimiter=',')
 
 
 
@@ -40,6 +41,7 @@ print(can_edg.shape)
 plt.imshow(can_edg, cmap = 'gray')
 #plt.show()
 #plt.savefig('img_canny', dpi=600)
+np.savetxt("can_edg.csv", can_edg, delimiter=',')
 
 
 
@@ -58,4 +60,6 @@ print(har_cor.shape)
 plt.imshow(har_cor, cmap = 'gray')
 #plt.show()
 #plt.savefig('img_harris', dpi=600)
+print(har_cor.shape)
+np.savetxt("har_cor_simple.csv", har_cor, delimiter=',')
 
