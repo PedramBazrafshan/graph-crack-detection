@@ -32,6 +32,10 @@ print('img_gray =', img_gray.shape)
 #np.savetxt("img_gray.csv", img_gray, delimiter=',')
 
 
+#################################################################################################
+########################################  Edge Detection ########################################
+#################################################################################################
+
 
 ################################### Canny Edge Detection
 can_edg = cv2.Canny(img_gray, 100, 200)
@@ -51,6 +55,11 @@ img_gray_modif = np.float32(img_gray)
 
 
 
+#################################################################################################
+########################################  Corner Detection ######################################
+#################################################################################################
+
+
 ################################## Harris Corner Detection
 har_cor = cv2.cornerHarris(img_gray_modif, 2, 3, 0.04)
 #har_cor = cv2.dilate(har_cor, None)
@@ -64,7 +73,7 @@ print('Harris_simple =', har_cor.shape)
 #np.savetxt("img_harris_simple.csv", har_cor, delimiter=',')
 
 
-################################### Corner With SubPixel Accuracy (Using Harris Corner Detection Algorithm)
+######################### Corner With SubPixel Accuracy (Using Harris Corner Detection Algorithm)
 har_cor_dil = cv2.dilate(har_cor, None)
 ret, har_cor_thresh = cv2.threshold(har_cor_dil, 0.01*har_cor_dil.max(), 255, 0)
 har_cor_thresh = np.uint8(har_cor_thresh)
