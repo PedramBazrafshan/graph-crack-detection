@@ -1,13 +1,12 @@
 import numpy as np
-import cv2
+import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import sift
 
 
 
 #################################### Loading The Data Using Matplotlib
-img = cv2.imread("img.jpg")[:,:,::-1]
+img = cv.imread("img.jpg")[:,:,::-1]
 
 ### Testing the size of the dataset
 print('img =', img.shape)
@@ -18,7 +17,7 @@ print('img =', img.shape)
 
 
 #################################### RGB2Gray Using Matplotlib
-img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
 
 ### directly reading the gray scale
 #image = cv2.imread('img.jpg', 0)
@@ -38,7 +37,7 @@ print('img_gray =', img_gray.shape)
 
 
 ################################### Canny Edge Detection
-can_edg = cv2.Canny(img_gray, 100, 200)
+can_edg = cv.Canny(img_gray, 100, 200)
 
 ### Testing the size of the dataset
 print('Canny =', can_edg.shape)
@@ -55,13 +54,36 @@ img_gray_modif = np.float32(img_gray)
 
 
 
+
+################################### Image Pyramids
+# generate Gaussian pyramid for the Gray-scale Image
+G = img_gray.copy()
+gpA = [G]
+for i in range(4):
+    G = cv.pyrDown(G)
+    gpA.append(G)
+
+
+lpA = [gpA[3]]
+for i in range(3,0,-1):
+    GE = cv.pyrUp(gpA[i])
+    L = cv.subtract(gpA[i-1],GE)
+    lpA.append(L)
+
+
+#plt.imshow(lpA[3], cmap = 'gray')
+#plt.savefig('img_pyramid_simple', dpi=600)
+#plt.show()
+
+
+
 #################################################################################################
 ########################################  Corner Detection ######################################
 #################################################################################################
 
 
 ################################## Harris Corner Detection
-har_cor = cv2.cornerHarris(img_gray_modif, 2, 3, 0.04)
+har_cor = cv.cornerHarris(img_gray_modif, 2, 3, 0.04)
 #har_cor = cv2.dilate(har_cor, None)
 
 ### Testing the size of the dataset
@@ -74,16 +96,16 @@ print('Harris_simple =', har_cor.shape)
 
 
 ######################### Corner With SubPixel Accuracy (Using Harris Corner Detection Algorithm)
-har_cor_dil = cv2.dilate(har_cor, None)
-ret, har_cor_thresh = cv2.threshold(har_cor_dil, 0.01*har_cor_dil.max(), 255, 0)
+har_cor_dil = cv.dilate(har_cor, None)
+ret, har_cor_thresh = cv.threshold(har_cor_dil, 0.01*har_cor_dil.max(), 255, 0)
 har_cor_thresh = np.uint8(har_cor_thresh)
 
 # find centroids
-ret, labels, stats, centroids = cv2.connectedComponentsWithStats(har_cor_thresh)
+ret, labels, stats, centroids = cv.connectedComponentsWithStats(har_cor_thresh)
 
 # define the criteria to stop and refine the corners
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
-har_cor_subpix = cv2.cornerSubPix(img_gray_modif, np.float32(centroids), (5,5), (-1,-1), criteria)
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.001)
+har_cor_subpix = cv.cornerSubPix(img_gray_modif, np.float32(centroids), (5,5), (-1,-1), criteria)
 
 ### Testing the size of the dataset
 print('Harris_subpix =', har_cor_subpix.shape)
@@ -100,7 +122,7 @@ y_subpix[:,0] = har_cor_subpix[:, 1]
 
 
 ################################ Shi-Tomasi Corner Detection
-shi_tomasi = cv2.goodFeaturesToTrack(img_gray_modif, 300, 0.01, 10)
+shi_tomasi = cv.goodFeaturesToTrack(img_gray_modif, 300, 0.01, 10)
 shi_tomasi = np.int0(shi_tomasi)
 
 ### Testing the size of the dataset
@@ -118,16 +140,60 @@ y_shi_tomasi[:,0] = shi_tomasi[:, 0, 1]
 
 
 ############################################### SIFT
-sift = cv2.xfeatures2d.SIFT_create()
-kp, des = sift.detectAndCompute(img_gray, None)
+sift = cv.xfeatures2d.SIFT_create()
+kp_sift, des_sift = sift.detectAndCompute(img_gray, None)
 img_sift = img_gray
-img_sift = cv2.drawKeypoints(img_gray, kp, img_sift)
+img_sift = cv.drawKeypoints(img_gray, kp_sift, img_sift)
 
 ### Testing the size of the dataset
-print('SIFT =', des.shape)
+print('SIFT =', des_sift.shape)
 
 #plt.imshow(img_sift, cmap = 'gray')
 #plt.show()
 #plt.savefig('img_sift', dpi=600)
+
+
+
+############################################### SURF
+surf = cv.xfeatures2d.SURF_create(800)
+kp_surf, des_surf = surf.detectAndCompute(img_gray, None)
+img_surf = img_gray
+img_surf = cv.drawKeypoints(img_gray, kp_surf, img_surf)
+
+### Testing the size of the dataset
+print('SURF =', des_surf.shape)
+
+#plt.imshow(img_surf, cmap = 'gray')
+#plt.show()
+#plt.savefig('img_surf', dpi=600)
+
+
+
+
+############################################### FAST
+fast = cv.FastFeatureDetector_create()
+kp_fast = fast.detect(img_gray, None)
+img_fast = img_gray
+img_fast = cv.drawKeypoints(img_gray, kp_fast, img_fast)
+
+#plt.imshow(img_fast, cmap = 'gray')
+#plt.show()
+#plt.savefig('img_fast', dpi=600)
+
+
+
+############################################### ORB
+orb = cv.ORB_create(10000000)
+kp_orb = orb.detect(img_gray, None)
+kp_orb, des_orb = orb.compute(img_gray, kp_orb)
+img_orb = img_gray
+img_orb = cv.drawKeypoints(img_gray, kp_orb, img_orb)
+
+### Testing the size of the dataset
+print('ORB =', des_orb.shape)
+
+#plt.imshow(img_orb, cmap = 'gray')
+#plt.show()
+#plt.savefig('img_orb', dpi=600)
 
 
